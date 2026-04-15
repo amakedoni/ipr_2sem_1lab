@@ -1,0 +1,71 @@
+# Задание 4: Horizontal Pod Autoscaler
+#
+# Предварительные требования:
+#   Metrics Server должен быть установлен в кластере.
+#   В Docker Desktop он обычно уже включён. Проверить:
+#     kubectl top nodes
+#   Если команда не работает, установить:
+#     kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+---
+# HPA для backend: масштабирует от 2 до 10 реплик при CPU > 50%
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: backend-hpa
+  namespace: lab5
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backend-deployment
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 50
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 70
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30   # быстро масштабируемся вверх
+      policies:
+      - type: Pods
+        value: 2
+        periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 120  # медленно масштабируемся вниз
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 30
+
+---
+# HPA для frontend
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: frontend-hpa
+  namespace: lab5
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: frontend-deployment
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60
