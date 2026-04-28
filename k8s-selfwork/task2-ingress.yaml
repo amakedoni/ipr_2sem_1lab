@@ -1,18 +1,3 @@
-# Шаг 1: Установить Nginx Ingress Controller
-# kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.4/deploy/static/provider/cloud/deploy.yaml
-#
-# Дождаться готовности:
-# kubectl wait --namespace ingress-nginx \
-#   --for=condition=ready pod \
-#   --selector=app.kubernetes.io/component=controller \
-#   --timeout=120s
-
----
-# Шаг 2: Добавить запись в /etc/hosts (Windows: C:\Windows\System32\drivers\etc\hosts)
-# 127.0.0.1  k8s-lab.local
-
----
-# Шаг 3: Создать Ingress ресурс
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -26,7 +11,6 @@ spec:
   - host: k8s-lab.local
     http:
       paths:
-      # Корневой путь → frontend
       - path: /
         pathType: Prefix
         backend:
@@ -34,7 +18,6 @@ spec:
             name: frontend-service
             port:
               number: 80
-      # /api → backend (прямой доступ к API)
       - path: /api
         pathType: Prefix
         backend:

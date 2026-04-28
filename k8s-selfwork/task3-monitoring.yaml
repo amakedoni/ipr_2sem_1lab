@@ -1,31 +1,10 @@
-# Задание 3: Мониторинг с Prometheus
-#
-# Шаг 1: Установить Prometheus через Helm
-#   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-#   helm repo update
-#   helm install prometheus prometheus-community/kube-prometheus-stack \
-#     --namespace monitoring --create-namespace
-#
-# Шаг 2: Проверить установку
-#   kubectl get pods -n monitoring
-#
-# Шаг 3: Доступ к Prometheus UI
-#   kubectl port-forward svc/prometheus-kube-prometheus-prometheus 9090:9090 -n monitoring
-#   Открыть: http://localhost:9090
-#
-# Шаг 4: Доступ к Grafana
-#   kubectl port-forward svc/prometheus-grafana 3000:80 -n monitoring
-#   Открыть: http://localhost:3000  (admin / prom-operator)
-
----
-# ServiceMonitor — указывает Prometheus, где собирать метрики с backend
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: backend-monitor
   namespace: lab5
   labels:
-    release: prometheus   # должен совпадать с лейблом Helm-релиза
+    release: prometheus
 spec:
   selector:
     matchLabels:
@@ -36,7 +15,6 @@ spec:
     interval: 15s
 
 ---
-# ServiceMonitor для frontend
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -54,7 +32,6 @@ spec:
     interval: 15s
 
 ---
-# PrometheusRule — пример алерта при недоступности backend
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:

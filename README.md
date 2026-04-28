@@ -252,7 +252,18 @@ sum(rate(container_cpu_usage_seconds_total{namespace="lab5"}[5m])) by (pod)
 ### Применить
 
 ```bash
-# Проверить что Metrics Server работает
+# Установить Metrics Server (в Docker Desktop не встроен)
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+# Добавить флаг --kubelet-insecure-tls (обязательно для Docker Desktop)
+kubectl patch deployment metrics-server -n kube-system \
+  --type='json' \
+  -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
+
+# Дождаться готовности
+kubectl wait deployment metrics-server -n kube-system --for=condition=Available --timeout=60s
+
+# Проверить
 kubectl top nodes
 
 # Применить HPA

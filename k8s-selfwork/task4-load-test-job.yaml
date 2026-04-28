@@ -1,23 +1,10 @@
-# Генератор нагрузки для демонстрации HPA
-# Запускает бесконечный цикл HTTP-запросов к backend, пока Job не будет удалён.
-#
-# Применить:
-#   kubectl apply -f task4-load-test-job.yaml
-#
-# Наблюдать за масштабированием в реальном времени (открыть второй терминал):
-#   kubectl get hpa -n lab5 -w
-#   kubectl get pods -n lab5 -w
-#
-# Остановить нагрузку:
-#   kubectl delete -f task4-load-test-job.yaml
-
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: load-test
   namespace: lab5
 spec:
-  parallelism: 5        # 5 параллельных workers
+  parallelism: 5
   completions: 5
   template:
     spec:
@@ -29,7 +16,6 @@ spec:
         - /bin/sh
         - -c
         - |
-          echo "Starting load test against backend-service..."
           while true; do
             wget -q -O- http://backend-service:5000/api/info > /dev/null 2>&1
             wget -q -O- http://backend-service:5000/health   > /dev/null 2>&1
